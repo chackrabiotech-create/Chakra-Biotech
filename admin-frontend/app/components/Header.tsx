@@ -49,17 +49,17 @@ const Header = ({ title }: HeaderProps) => {
   ];
 
   return (
-    <header className="bg-white border-b border-admin-200 px-4 sm:px-6 lg:px-8 py-4 sticky top-0 z-30">
-      <div className="flex items-center justify-between">
+    <header className="bg-white border-b border-admin-200 px-3 sm:px-6 lg:px-8 py-3 sm:py-4 sticky top-0 z-30">
+      <div className="flex items-center justify-between gap-2">
         {/* Title Section */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
           {/* Mobile spacing for hamburger menu */}
-          <div className="w-10 lg:hidden"></div>
-          <div>
-            <h1 className="text-lg sm:text-xl lg:text-2xl font-serif font-bold text-admin-800 truncate">
+          <div className="w-10 lg:hidden flex-shrink-0"></div>
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-xl lg:text-2xl font-serif font-bold text-admin-800 truncate">
               {title}
             </h1>
-            <p className="text-xs sm:text-sm text-admin-500 hidden sm:block">
+            <p className="text-[10px] sm:text-sm text-admin-500 hidden md:block truncate">
               Welcome back, manage your agri-tech business
             </p>
           </div>

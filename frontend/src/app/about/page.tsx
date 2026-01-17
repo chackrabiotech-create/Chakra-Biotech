@@ -1,126 +1,168 @@
 "use client";
 
+import type { Metadata } from "next";
 import { motion } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { QualityCertification } from "@/components/ui/quality-certification";
 import Link from "next/link";
-import { Award, Leaf, Users, Globe, ArrowRight, ShieldCheck, Heart } from "lucide-react";
+import {
+  Award,
+  Leaf,
+  Users,
+  Globe,
+  ArrowRight,
+  ShieldCheck,
+  Heart,
+} from "lucide-react";
+
+// Note: Metadata must be exported from a Server Component, not a Client Component
+// For client components, use a separate layout.tsx or move metadata to parent
 
 const values = [
   {
-    icon: ShieldCheck,
-    title: "Authenticity",
-    description: "100% genuine saffron with certificates of authenticity for every batch.",
-  },
-  {
     icon: Leaf,
-    title: "Sustainability",
-    description: "Eco-friendly farming practices that preserve the land for future generations.",
+    title: "Aeroponic Innovation",
+    description:
+      "Soil-less cultivation using advanced precision climate-controlled systems.",
   },
   {
-    icon: Heart,
-    title: "Quality",
-    description: "Rigorous quality control ensures only the finest saffron reaches you.",
+    icon: ShieldCheck,
+    title: "Resource Efficiency",
+    description:
+      "Reduced water usage and optimized nutrient delivery for sustainable agriculture.",
+  },
+  {
+    icon: Award,
+    title: "Kashmir Quality",
+    description:
+      "Replicating Kashmir-like conditions to produce premium 'Red Gold' anywhere.",
   },
   {
     icon: Users,
-    title: "Community",
-    description: "Supporting local farmers and communities in Kashmir and beyond.",
+    title: "Agri-Empowerment",
+    description:
+      "Democratizing high-value saffron farming for entrepreneurs and institutions.",
   },
 ];
 
-const timeline = [
-  { year: "1985", title: "Our Beginning", description: "Started as a small family farm in Kashmir" },
-  { year: "1995", title: "First Export", description: "Expanded to international markets" },
-  { year: "2008", title: "Organic Certified", description: "Received organic certification" },
-  { year: "2015", title: "Training Academy", description: "Launched saffron training programs" },
-  { year: "2024", title: "Digital Presence", description: "Bringing premium saffron online" },
+const team = [
+  {
+    name: "Mr. Siddhartha Sharma",
+    role: "Founder & Lead Developer",
+    bio: "M.Sc. (IT), Manipal University. Focused on agri-data systems, aeroponic research, and strategic partnerships.",
+    image: "/team-siddhartha.jpg",
+  },
+  {
+    name: "Mr. Ankit Sharma",
+    role: "Operations & Quality",
+    bio: "Expert in biotechnology and modern farming systems. Leads R&D, aeroponic operations, and cultivation optimization.",
+    image: "/team-ankit.jpg",
+  },
 ];
 
 export default function About() {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative py-20 overflow-hidden">
+      <section className="relative py-24 md:py-32 overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(/saffron-field.jpg)` }}
+          style={{ backgroundImage: `url(/hero-saffron.jpg)` }}
         />
-        <div className="absolute inset-0 bg-secondary/85" />
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="absolute inset-0 bg-[#3d0a0a]/90" />
+        <div className="container mx-auto px-4 relative z-10 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="max-w-3xl"
+            className="max-w-4xl mx-auto"
           >
-            <span className="text-primary font-medium">Our Story</span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-secondary-foreground mt-2">
-              From Kashmir's Heart to Your Home
+            <span className="text-primary font-medium tracking-widest uppercase text-sm">
+              Agri + Technology Revolution
+            </span>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-white mt-4 leading-tight">
+              Democratizing <span className="text-primary">Red Gold</span>
             </h1>
-            <p className="text-secondary-foreground/80 mt-6 text-lg leading-relaxed">
-              For over three decades, we've been cultivating the world's finest saffron in the
-              pristine valleys of Kashmir. Our commitment to quality and authenticity has made us a
-              trusted name in premium saffron worldwide.
+            <p className="text-white/80 mt-8 text-xl leading-relaxed max-w-2xl mx-auto">
+              Chakra Biotech LLP is an emerging Agri-Tech leader based in
+              Jaipur, Rajasthan, pioneering the future of indoor aeroponic
+              saffron cultivation.
             </p>
           </motion.div>
         </div>
       </section>
 
       {/* Mission & Vision */}
-      <section className="py-20 bg-background">
+      <section className="py-24 bg-background">
         <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
+              className="relative"
             >
               <img
-                src="/hero-saffron.jpg"
-                alt="Premium Saffron"
-                className="rounded-3xl shadow-elevated"
+                src="/saffron-field.jpg"
+                alt="Indoor Saffron Lab"
+                className="rounded-3xl shadow-2xl relative z-10"
               />
+              <div className="absolute -bottom-6 -right-6 w-48 h-48 bg-primary/10 rounded-full -z-0" />
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="space-y-8"
+              className="space-y-10"
             >
-              <div>
-                <h2 className="text-3xl font-serif font-bold text-foreground">Our Mission</h2>
-                <p className="text-muted-foreground mt-4 leading-relaxed">
-                  To bring the authentic taste and health benefits of premium Kashmiri saffron to
-                  every kitchen worldwide, while supporting sustainable farming practices and
-                  empowering local communities.
+              <div className="space-y-4">
+                <h2 className="text-4xl font-serif font-bold text-foreground">
+                  Our Vision
+                </h2>
+                <p className="text-muted-foreground text-lg leading-relaxed">
+                  To build India's leading indoor saffron cultivation ecosystem,
+                  enabling high-quality "Red Gold" production in non-traditional
+                  regions through technology, self-reliance, and sustainable
+                  agri-innovation.
                 </p>
               </div>
 
-              <div>
-                <h2 className="text-3xl font-serif font-bold text-foreground">Our Vision</h2>
-                <p className="text-muted-foreground mt-4 leading-relaxed">
-                  To become the world's most trusted source of premium saffron, setting the gold
-                  standard for quality, authenticity, and customer experience in the spice industry.
+              <div className="space-y-4">
+                <h2 className="text-4xl font-serif font-bold text-foreground">
+                  Our Mission
+                </h2>
+                <p className="text-muted-foreground text-lg leading-relaxed">
+                  To empower farmers, agri-entrepreneurs, and institutions by
+                  introducing aeroponic and hydroponic saffron farming using
+                  controlled environments that replicate Kashmir-like
+                  conditions, creating profitable, scalable, and
+                  climate-resilient agriculture models in Rajasthan.
                 </p>
               </div>
 
-              <div className="grid grid-cols-3 gap-6 pt-4">
-                <div className="text-center">
-                  <Award className="w-8 h-8 text-primary mx-auto" />
-                  <div className="text-2xl font-bold text-foreground mt-2">35+</div>
-                  <div className="text-sm text-muted-foreground">Years Experience</div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 pt-6">
+                <div className="space-y-1">
+                  <div className="text-3xl font-bold text-foreground">
+                    Soil-less
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Cultivation Method
+                  </div>
                 </div>
-                <div className="text-center">
-                  <Globe className="w-8 h-8 text-primary mx-auto" />
-                  <div className="text-2xl font-bold text-foreground mt-2">50+</div>
-                  <div className="text-sm text-muted-foreground">Countries Served</div>
+                <div className="space-y-1">
+                  <div className="text-3xl font-bold text-foreground">CEA</div>
+                  <div className="text-sm text-muted-foreground">
+                    Tech Ecosystem
+                  </div>
                 </div>
-                <div className="text-center">
-                  <Users className="w-8 h-8 text-primary mx-auto" />
-                  <div className="text-2xl font-bold text-foreground mt-2">10K+</div>
-                  <div className="text-sm text-muted-foreground">Happy Customers</div>
+                <div className="space-y-1">
+                  <div className="text-3xl font-bold text-foreground">
+                    Jaipur
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Headquarters
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -128,21 +170,21 @@ export default function About() {
         </div>
       </section>
 
-      {/* Values */}
-      <section className="py-20 bg-cream-dark">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
-              Our Core Values
+      {/* Technology Block */}
+      <section className="py-24 bg-[#0a0a0a] text-white overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-primary/5 blur-3xl rounded-full translate-x-1/2" />
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-3xl mb-16">
+            <h2 className="text-4xl md:text-5xl font-serif font-bold mb-6">
+              Innovative Solutions
             </h2>
-          </motion.div>
+            <p className="text-white/60 text-lg">
+              We address climate dependency and geographical limitations through
+              Controlled Environment Agriculture (CEA).
+            </p>
+          </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => (
               <motion.div
                 key={value.title}
@@ -150,54 +192,66 @@ export default function About() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-card p-6 rounded-2xl text-center shadow-card"
+                className="bg-white/5 p-8 rounded-3xl border border-white/10 hover:bg-white/10 transition-colors"
               >
-                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <value.icon className="w-7 h-7 text-primary" />
+                <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center mb-6">
+                  <value.icon className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="font-serif text-xl font-semibold text-foreground">{value.title}</h3>
-                <p className="text-muted-foreground text-sm mt-2">{value.description}</p>
+                <h3 className="font-serif text-xl font-semibold mb-3">
+                  {value.title}
+                </h3>
+                <p className="text-white/40 text-sm leading-relaxed">
+                  {value.description}
+                </p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Timeline */}
-      <section className="py-20 bg-background">
+      {/* Team Section */}
+      <section className="py-24 bg-background">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
-              Our Journey
+            <h2 className="text-4xl md:text-5xl font-serif font-bold text-foreground">
+              Meet Our Leadership
             </h2>
+            <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
+              The experts driving the next generation of precision agriculture
+              in India.
+            </p>
           </motion.div>
 
-          <div className="relative max-w-3xl mx-auto">
-            <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-border -translate-x-1/2" />
-            {timeline.map((item, index) => (
+          <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+            {team.map((member, index) => (
               <motion.div
-                key={item.year}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                key={member.name}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className={`relative flex items-center gap-8 mb-8 ${
-                  index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
-                }`}
+                transition={{ delay: index * 0.2 }}
+                className="flex flex-col md:flex-row gap-8 items-center bg-card p-8 rounded-3xl shadow-card hover:shadow-elevated transition-shadow border border-border/50"
               >
-                <div className="hidden md:block flex-1" />
-                <div className="relative z-10 w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                  <div className="w-3 h-3 rounded-full bg-primary-foreground" />
+                <div className="w-40 h-40 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/30 flex-shrink-0 overflow-hidden">
+                  <div className="w-full h-full flex items-center justify-center text-primary/40">
+                    <Users className="w-16 h-16" />
+                  </div>
                 </div>
-                <div className="flex-1 bg-card p-6 rounded-xl shadow-card">
-                  <span className="text-primary font-bold">{item.year}</span>
-                  <h3 className="font-serif text-lg font-semibold text-foreground">{item.title}</h3>
-                  <p className="text-muted-foreground text-sm mt-1">{item.description}</p>
+                <div className="text-center md:text-left">
+                  <h3 className="text-2xl font-serif font-bold text-foreground">
+                    {member.name}
+                  </h3>
+                  <div className="text-primary font-medium mb-4">
+                    {member.role}
+                  </div>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    {member.bio}
+                  </p>
                 </div>
               </motion.div>
             ))}
@@ -206,9 +260,9 @@ export default function About() {
       </section>
 
       {/* Quality Certification */}
-      <section className="py-20 bg-background">
+      <section className="py-24 bg-cream-dark">
         <div className="container mx-auto px-4">
-          <QualityCertification 
+          <QualityCertification
             variant="full"
             showMetrics={true}
             showCertifications={true}
@@ -219,26 +273,42 @@ export default function About() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-secondary">
-        <div className="container mx-auto px-4 text-center">
+      <section className="py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-primary" />
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-cream-dark to-transparent opacity-20" />
+        <div className="container mx-auto px-4 text-center relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-2xl md:text-3xl font-serif font-bold text-secondary-foreground">
-              Experience the SaffronGold Difference
+            <h2 className="text-3xl md:text-5xl font-serif font-bold text-white">
+              Revolutionizing Saffron Cultivation
             </h2>
-            <p className="text-secondary-foreground/80 mt-4 max-w-xl mx-auto">
-              Browse our collection of premium saffron products and taste the difference quality
-              makes.
+            <p className="text-white/80 mt-6 max-w-2xl mx-auto text-lg">
+              Join us in strengthening India's agri-innovation landscape.
+              Experience the purest 'Red Gold' grown with precision and care.
             </p>
-            <Button size="lg" asChild className="mt-6">
-              <Link href="/products">
-                Explore Products
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10">
+              <Button
+                size="lg"
+                asChild
+                className="bg-white text-primary hover:bg-white/90"
+              >
+                <Link href="/products">
+                  Explore Pure Saffron
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                asChild
+                className="border-white text-white hover:bg-white/10"
+              >
+                <Link href="/contact">Partner With Us</Link>
+              </Button>
+            </div>
           </motion.div>
         </div>
       </section>

@@ -61,6 +61,11 @@ const Sidebar = () => {
       href: "/dashboard/blog-categories",
       icon: FolderOpen,
     },
+    {
+      name: "Comments",
+      href: "/dashboard/comments",
+      icon: MessageSquare,
+    },
     { name: "Products", href: "/dashboard/products", icon: Package },
     {
       name: "Product Categories",

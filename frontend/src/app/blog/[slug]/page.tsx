@@ -1,109 +1,145 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Calendar, 
-  Clock, 
-  User, 
-  ArrowLeft, 
-  Share2, 
+import {
+  Calendar,
+  Clock,
+  User,
+  ArrowLeft,
+  Share2,
   Heart,
   Facebook,
   Twitter,
-  Linkedin
+  Linkedin,
+  MessageCircle,
+  Send,
+  CornerDownRight,
 } from "lucide-react";
-
-// Mock blog data - in real app, this would come from API
-const blogData = {
-  "health-benefits-of-saffron": {
-    id: 1,
-    slug: "health-benefits-of-saffron",
-    title: "10 Incredible Health Benefits of Saffron You Need to Know",
-    excerpt: "Discover the powerful health benefits of saffron, from boosting mood to improving heart health. Learn how this golden spice can transform your wellbeing.",
-    content: `
-      <p>Saffron, often called "red gold," is one of the world's most precious spices. Beyond its culinary applications, saffron has been treasured for centuries for its remarkable health benefits. Modern science is now validating what ancient civilizations have long known about this golden treasure.</p>
-
-      <h2>1. Powerful Antioxidant Properties</h2>
-      <p>Saffron contains over 150 volatile compounds, including crocin, crocetin, and safranal, which give it potent antioxidant properties. These compounds help protect your cells from oxidative stress and free radical damage, potentially reducing the risk of chronic diseases.</p>
-
-      <h2>2. Natural Mood Enhancer</h2>
-      <p>Studies have shown that saffron can be as effective as some antidepressant medications in treating mild to moderate depression. The spice helps increase levels of serotonin and dopamine, neurotransmitters that regulate mood and emotional well-being.</p>
-
-      <h2>3. Supports Heart Health</h2>
-      <p>The antioxidants in saffron, particularly crocetin, may help reduce cholesterol levels and prevent the buildup of plaque in arteries. Regular consumption of saffron has been linked to improved cardiovascular health and reduced risk of heart disease.</p>
-
-      <h2>4. Enhances Brain Function</h2>
-      <p>Saffron's neuroprotective properties may help improve memory, learning, and overall cognitive function. Some studies suggest it could be beneficial in managing neurodegenerative conditions like Alzheimer's disease.</p>
-
-      <h2>5. Promotes Eye Health</h2>
-      <p>The carotenoids in saffron, including crocin and crocetin, may help protect the retina from damage and improve vision. Research indicates that saffron supplementation could slow the progression of age-related macular degeneration.</p>
-
-      <h2>6. Natural Anti-Inflammatory</h2>
-      <p>Saffron's anti-inflammatory compounds can help reduce inflammation throughout the body, potentially alleviating symptoms of inflammatory conditions and supporting overall health.</p>
-
-      <h2>7. Supports Digestive Health</h2>
-      <p>Traditional medicine has long used saffron to aid digestion. The spice can help stimulate appetite, reduce bloating, and support healthy digestive function.</p>
-
-      <h2>8. May Help with Weight Management</h2>
-      <p>Some studies suggest that saffron extract may help reduce appetite and prevent overeating, potentially supporting healthy weight management when combined with a balanced diet and exercise.</p>
-
-      <h2>9. Skin Health Benefits</h2>
-      <p>Saffron's antioxidant and anti-inflammatory properties make it beneficial for skin health. It may help improve skin texture, reduce signs of aging, and promote a healthy, radiant complexion.</p>
-
-      <h2>10. Supports Women's Health</h2>
-      <p>Saffron has been traditionally used to help alleviate symptoms of PMS and menstrual discomfort. Some research suggests it may help regulate mood swings and reduce physical symptoms associated with menstruation.</p>
-
-      <h2>How to Incorporate Saffron into Your Diet</h2>
-      <p>To reap these health benefits, you can incorporate saffron into your diet in various ways:</p>
-      <ul>
-        <li>Add a pinch to rice dishes, soups, and stews</li>
-        <li>Brew saffron tea by steeping threads in hot water</li>
-        <li>Use in desserts and sweet preparations</li>
-        <li>Take as a supplement (consult with a healthcare provider first)</li>
-      </ul>
-
-      <h2>Important Considerations</h2>
-      <p>While saffron is generally safe for most people when used in culinary amounts, it's important to source high-quality, authentic saffron. Always consult with a healthcare provider before using saffron supplements, especially if you're pregnant, nursing, or taking medications.</p>
-
-      <p>The golden threads of saffron offer far more than just flavor and color to your dishes. With its impressive array of health benefits, this precious spice truly deserves its reputation as nature's golden medicine.</p>
-    `,
-    image: "/saffron-tea.jpg",
-    category: "Health",
-    author: "Dr. Priya Sharma",
-    date: "Dec 28, 2025",
-    readTime: "5 min read",
-    tags: ["health", "benefits", "antioxidants", "wellness"]
-  }
-};
-
-const relatedPosts = [
-  {
-    id: 2,
-    slug: "saffron-cultivation-guide",
-    title: "Complete Guide to Growing Saffron at Home",
-    image: "/saffron-field.jpg",
-    category: "Cultivation",
-    date: "Dec 25, 2025"
-  },
-  {
-    id: 3,
-    slug: "authentic-saffron-identification",
-    title: "How to Identify Authentic Saffron",
-    image: "/hero-saffron.jpg",
-    category: "Quality",
-    date: "Dec 22, 2025"
-  }
-];
+import { blogsApi, Blog } from "@/lib/api/blogs";
+import { commentsApi, BlogComment } from "@/lib/api/comments";
+import { toast } from "sonner";
 
 export default function BlogDetails() {
   const params = useParams();
   const slug = params.slug as string;
-  const post = blogData[slug as keyof typeof blogData];
+
+  const [post, setPost] = useState<Blog | null>(null);
+  const [comments, setComments] = useState<BlogComment[]>([]);
+  const [replies, setReplies] = useState<BlogComment[]>([]);
+  const [relatedPosts, setRelatedPosts] = useState<Blog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [commentLoading, setCommentLoading] = useState(false);
+  const [replyTo, setReplyTo] = useState<string | null>(null);
+
+  const [commentForm, setCommentForm] = useState({
+    name: "",
+    email: "",
+    comment: "",
+  });
+
+  useEffect(() => {
+    if (slug) {
+      loadPostData();
+    }
+  }, [slug]);
+
+  const loadPostData = async () => {
+    try {
+      setLoading(true);
+      const [postRes, relatedRes, commentsRes] = await Promise.all([
+        blogsApi.getBySlug(slug),
+        blogsApi.getAll({ limit: 3 }), // Simplified related posts
+        commentsApi.getByBlog(slug),
+      ]);
+
+      if (postRes.success) {
+        setPost(postRes.data);
+        // Increment view count
+        blogsApi.incrementView(slug);
+      }
+
+      if (relatedRes.success) {
+        setRelatedPosts(
+          relatedRes.data.blogs.filter((b) => b.slug !== slug).slice(0, 2),
+        );
+      }
+
+      if (commentsRes.success) {
+        setComments(commentsRes.data.comments);
+        setReplies(commentsRes.data.replies);
+      }
+    } catch (error) {
+      console.error("Failed to load blog post:", error);
+      toast.error("Failed to load blog post");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCommentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!post) return;
+
+    try {
+      setCommentLoading(true);
+      if (replyTo) {
+        await commentsApi.replyToBlogComment(replyTo, commentForm);
+        toast.success("Reply submitted for approval!");
+      } else {
+        await commentsApi.createBlogComment(slug, commentForm);
+        toast.success("Comment submitted for approval!");
+      }
+      setCommentForm({ name: "", email: "", comment: "" });
+      setReplyTo(null);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to submit comment");
+    } finally {
+      setCommentLoading(false);
+    }
+  };
+
+  const handleShare = (platform?: string) => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    const title = post?.title || "";
+
+    if (platform === "facebook") {
+      window.open(
+        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+        "_blank",
+      );
+    } else if (platform === "twitter") {
+      window.open(
+        `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
+        "_blank",
+      );
+    } else if (platform === "linkedin") {
+      window.open(
+        `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+        "_blank",
+      );
+    } else if (navigator.share) {
+      navigator.share({ title, url });
+    } else {
+      navigator.clipboard.writeText(url);
+      toast.success("URL copied to clipboard");
+    }
+  };
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </Layout>
+    );
+  }
 
   if (!post) {
     return (
@@ -118,32 +154,19 @@ export default function BlogDetails() {
     );
   }
 
-  const handleShare = (platform?: string) => {
-    const url = window.location.href;
-    const title = post.title;
-    
-    if (platform === 'facebook') {
-      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
-    } else if (platform === 'twitter') {
-      window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, '_blank');
-    } else if (platform === 'linkedin') {
-      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
-    } else if (navigator.share) {
-      navigator.share({ title, url });
-    } else {
-      navigator.clipboard.writeText(url);
-    }
-  };
-
   return (
     <Layout>
       {/* Breadcrumb */}
       <section className="py-4 bg-card border-b">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Link href="/" className="hover:text-primary">Home</Link>
+            <Link href="/" className="hover:text-primary">
+              Home
+            </Link>
             <span>/</span>
-            <Link href="/blog" className="hover:text-primary">Blog</Link>
+            <Link href="/blog" className="hover:text-primary">
+              Blog
+            </Link>
             <span>/</span>
             <span className="text-foreground truncate">{post.title}</span>
           </div>
@@ -159,14 +182,18 @@ export default function BlogDetails() {
               animate={{ opacity: 1, y: 0 }}
               className="text-center mb-8"
             >
-              <Badge className="mb-4">{post.category}</Badge>
+              <Badge className="mb-4">
+                {typeof post.category === "object"
+                  ? post.category.name
+                  : "Uncategorized"}
+              </Badge>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-foreground mb-6">
                 {post.title}
               </h1>
               <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
                 {post.excerpt}
               </p>
-              
+
               {/* Author & Meta */}
               <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground mb-8">
                 <div className="flex items-center gap-2">
@@ -175,29 +202,51 @@ export default function BlogDetails() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
-                  <span>{post.date}</span>
+                  <span>
+                    {post.publishedAt
+                      ? new Date(post.publishedAt).toLocaleDateString()
+                      : "Draft"}
+                  </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  <span>{post.readTime}</span>
-                </div>
+                {post.readTime && (
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    <span>{post.readTime}</span>
+                  </div>
+                )}
               </div>
 
               {/* Social Share */}
               <div className="flex items-center justify-center gap-4">
-                <Button variant="outline" size="sm" onClick={() => handleShare('facebook')}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleShare("facebook")}
+                >
                   <Facebook className="w-4 h-4 mr-2" />
                   Share
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => handleShare('twitter')}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleShare("twitter")}
+                >
                   <Twitter className="w-4 h-4 mr-2" />
                   Tweet
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => handleShare('linkedin')}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleShare("linkedin")}
+                >
                   <Linkedin className="w-4 h-4 mr-2" />
                   Share
                 </Button>
-                <Button variant="outline" size="icon" onClick={() => handleShare()}>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleShare()}
+                >
                   <Share2 className="w-4 h-4" />
                 </Button>
               </div>
@@ -208,10 +257,10 @@ export default function BlogDetails() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 }}
-              className="aspect-video rounded-2xl overflow-hidden mb-12"
+              className="aspect-video rounded-2xl overflow-hidden mb-12 shadow-xl"
             >
               <img
-                src={post.image}
+                src={post.featuredImage || "/placeholder.jpg"}
                 alt={post.title}
                 className="w-full h-full object-cover"
               />
@@ -234,7 +283,9 @@ export default function BlogDetails() {
 
             {/* Tags */}
             <div className="flex flex-wrap gap-2 mt-12 pt-8 border-t border-border">
-              <span className="text-sm font-medium text-foreground mr-2">Tags:</span>
+              <span className="text-sm font-medium text-foreground mr-2">
+                Tags:
+              </span>
               {post.tags.map((tag) => (
                 <Badge key={tag} variant="secondary" className="text-xs">
                   #{tag}
@@ -245,40 +296,240 @@ export default function BlogDetails() {
         </div>
       </section>
 
+      {/* Comments Section */}
+      <section className="py-20 bg-background border-t">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto">
+            <div className="flex items-center gap-3 mb-12">
+              <MessageCircle className="w-6 h-6 text-primary" />
+              <h2 className="text-2xl font-serif font-bold text-foreground">
+                Comments ({comments.length})
+              </h2>
+            </div>
+
+            {/* Comment List */}
+            <div className="space-y-8 mb-16">
+              <AnimatePresence>
+                {comments.length === 0 ? (
+                  <p className="text-muted-foreground text-center italic py-8">
+                    No comments yet. Be the first to share your thoughts!
+                  </p>
+                ) : (
+                  comments.map((comment) => (
+                    <div key={comment._id} className="space-y-4">
+                      <div className="p-6 bg-card rounded-2xl border border-border">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
+                              {comment.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-foreground">
+                                {comment.name}
+                              </h4>
+                              <p className="text-xs text-muted-foreground">
+                                {new Date(
+                                  comment.createdAt,
+                                ).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-primary hover:text-primary/80"
+                            onClick={() => {
+                              setReplyTo(comment._id);
+                              document
+                                .getElementById("comment-form")
+                                ?.scrollIntoView({ behavior: "smooth" });
+                            }}
+                          >
+                            Reply
+                          </Button>
+                        </div>
+                        <p className="text-muted-foreground leading-relaxed">
+                          {comment.comment}
+                        </p>
+                      </div>
+
+                      {/* Replies */}
+                      {replies
+                        .filter((r) => r.parentComment === comment._id)
+                        .map((reply) => (
+                          <div
+                            key={reply._id}
+                            className="ml-8 lg:ml-12 pl-6 border-l-2 border-border space-y-4"
+                          >
+                            <div className="p-5 bg-muted/30 rounded-2xl border border-border/50">
+                              <div className="flex items-center gap-3 mb-3">
+                                <CornerDownRight className="w-4 h-4 text-muted-foreground" />
+                                <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-xs font-bold">
+                                  {reply.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                  <h4 className="text-sm font-semibold text-foreground">
+                                    {reply.name}
+                                  </h4>
+                                  <p className="text-[10px] text-muted-foreground">
+                                    {new Date(
+                                      reply.createdAt,
+                                    ).toLocaleDateString()}
+                                  </p>
+                                </div>
+                              </div>
+                              <p className="text-sm text-muted-foreground leading-relaxed">
+                                {reply.comment}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  ))
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Comment Form */}
+            <div
+              id="comment-form"
+              className="bg-card p-8 rounded-2xl border border-border shadow-sm"
+            >
+              <h3 className="text-xl font-serif font-bold text-foreground mb-6">
+                {replyTo ? "Leave a Reply" : "Leave a Comment"}
+              </h3>
+              {replyTo && (
+                <div className="flex items-center justify-between bg-muted/50 p-2 px-4 rounded-lg mb-6">
+                  <span className="text-sm text-muted-foreground">
+                    Replying to a comment
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setReplyTo(null)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
+              <form onSubmit={handleCommentSubmit} className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={commentForm.name}
+                      onChange={(e) =>
+                        setCommentForm({ ...commentForm, name: e.target.value })
+                      }
+                      className="w-full bg-background border border-border rounded-lg p-3 outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                      placeholder="Your Name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Email *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={commentForm.email}
+                      onChange={(e) =>
+                        setCommentForm({
+                          ...commentForm,
+                          email: e.target.value,
+                        })
+                      }
+                      className="w-full bg-background border border-border rounded-lg p-3 outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                      placeholder="Your Email"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Comment *
+                  </label>
+                  <textarea
+                    rows={4}
+                    required
+                    value={commentForm.comment}
+                    onChange={(e) =>
+                      setCommentForm({
+                        ...commentForm,
+                        comment: e.target.value,
+                      })
+                    }
+                    className="w-full bg-background border border-border rounded-lg p-3 outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+                    placeholder="Write your thoughts here..."
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full md:w-auto px-8"
+                  disabled={commentLoading}
+                >
+                  {commentLoading ? (
+                    "Submitting..."
+                  ) : (
+                    <>
+                      <span>Submit {replyTo ? "Reply" : "Comment"}</span>
+                      <Send className="w-4 h-4 ml-2" />
+                    </>
+                  )}
+                </Button>
+                <p className="text-xs text-muted-foreground mt-4 italic">
+                  * All comments are subject to moderation before appearing on
+                  the site.
+                </p>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Related Posts */}
-      <section className="py-12 bg-background">
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-2xl font-serif font-bold text-foreground mb-8 text-center">
-              Related Articles
+              More from the Blog
             </h2>
             <div className="grid md:grid-cols-2 gap-8">
               {relatedPosts.map((relatedPost, index) => (
                 <motion.article
-                  key={relatedPost.id}
+                  key={relatedPost._id}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-elevated transition-shadow"
+                  className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-elevated transition-shadow border border-border/50"
                 >
                   <Link href={`/blog/${relatedPost.slug}`}>
                     <div className="aspect-video overflow-hidden">
                       <img
-                        src={relatedPost.image}
+                        src={relatedPost.featuredImage || "/placeholder.jpg"}
                         alt={relatedPost.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     </div>
                     <div className="p-6">
                       <Badge variant="outline" className="mb-2">
-                        {relatedPost.category}
+                        {typeof relatedPost.category === "object"
+                          ? relatedPost.category.name
+                          : "Category"}
                       </Badge>
-                      <h3 className="font-serif text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+                      <h3 className="font-serif text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
                         {relatedPost.title}
                       </h3>
                       <p className="text-sm text-muted-foreground mt-2">
-                        {relatedPost.date}
+                        {relatedPost.publishedAt
+                          ? new Date(
+                              relatedPost.publishedAt,
+                            ).toLocaleDateString()
+                          : "Draft"}
                       </p>
                     </div>
                   </Link>
@@ -290,13 +541,13 @@ export default function BlogDetails() {
       </section>
 
       {/* Back to Blog */}
-      <section className="py-8 bg-card">
+      <section className="py-12 bg-card">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto flex justify-center">
             <Link href="/blog">
-              <Button variant="outline">
+              <Button variant="outline" className="rounded-full px-8">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Blog
+                Back to all Articles
               </Button>
             </Link>
           </div>

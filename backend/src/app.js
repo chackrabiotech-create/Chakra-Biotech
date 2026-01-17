@@ -53,7 +53,7 @@ app.use('/api/admin/stats', require('./routes/admin/statsRoutes'));
 // Public routes
 app.use('/api/blog-categories', require('./routes/public/blogCategoryRoutes'));
 app.use('/api/blogs', require('./routes/public/blogRoutes'));
-app.use('/api/blogs', require('./routes/public/commentRoutes'));
+app.use('/api/comments', require('./routes/public/commentRoutes'));
 app.use('/api/product-categories', require('./routes/public/productCategoryRoutes'));
 app.use('/api/products', require('./routes/public/productRoutes'));
 app.use('/api/products', require('./routes/public/reviewRoutes'));

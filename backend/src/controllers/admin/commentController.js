@@ -1,22 +1,34 @@
 const BlogComment = require('../../models/BlogComment');
+const ProductComment = require('../../models/ProductComment');
 const { getPagination, getPaginationData } = require('../../utils/helpers');
 
 exports.getAll = async (req, res) => {
   try {
-    const { page = 1, limit = 20, blog, isApproved } = req.query;
+    const { page = 1, limit = 20, blog, product, type, isApproved } = req.query;
     const { skip, limit: limitNum } = getPagination(page, limit);
 
     const filter = {};
-    if (blog) filter.blog = blog;
     if (isApproved !== undefined) filter.isApproved = isApproved === 'true';
 
-    const comments = await BlogComment.find(filter)
-      .populate('blog', 'title slug')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limitNum);
+    let comments, total;
 
-    const total = await BlogComment.countDocuments(filter);
+    if (type === 'product' || product) {
+      if (product) filter.product = product;
+      comments = await ProductComment.find(filter)
+        .populate('product', 'name slug')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum);
+      total = await ProductComment.countDocuments(filter);
+    } else {
+      if (blog) filter.blog = blog;
+      comments = await BlogComment.find(filter)
+        .populate('blog', 'title slug')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum);
+      total = await BlogComment.countDocuments(filter);
+    }
 
     res.json({
       success: true,
@@ -29,11 +41,16 @@ exports.getAll = async (req, res) => {
 
 exports.approve = async (req, res) => {
   try {
-    const comment = await BlogComment.findByIdAndUpdate(
-      req.params.id,
-      { isApproved: true },
-      { new: true }
-    );
+    const { id } = req.params;
+    const { type } = req.query;
+
+    let comment;
+    if (type === 'product') {
+      comment = await ProductComment.findByIdAndUpdate(id, { isApproved: true }, { new: true });
+    } else {
+      comment = await BlogComment.findByIdAndUpdate(id, { isApproved: true }, { new: true });
+    }
+
     if (!comment) {
       return res.status(404).json({ success: false, message: 'Comment not found' });
     }
@@ -45,7 +62,16 @@ exports.approve = async (req, res) => {
 
 exports.delete = async (req, res) => {
   try {
-    const comment = await BlogComment.findByIdAndDelete(req.params.id);
+    const { id } = req.params;
+    const { type } = req.query;
+
+    let comment;
+    if (type === 'product') {
+      comment = await ProductComment.findByIdAndDelete(id);
+    } else {
+      comment = await BlogComment.findByIdAndDelete(id);
+    }
+
     if (!comment) {
       return res.status(404).json({ success: false, message: 'Comment not found' });
     }

@@ -49,7 +49,7 @@ export function HeroCarousel() {
 
   const prevSlide = () => {
     setCurrentIndex(
-      (prev) => (prev - 1 + activeSlides.length) % activeSlides.length
+      (prev) => (prev - 1 + activeSlides.length) % activeSlides.length,
     );
   };
 
@@ -84,24 +84,24 @@ export function HeroCarousel() {
                 initial={{ y: 30, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                className={`max-w-2xl lg:max-w-3xl ${
+                className={`max-w-2xl lg:max-w-3xl text-center sm:text-left ${
                   currentSlide.textPosition === "center"
-                    ? "mx-auto text-center"
+                    ? "sm:mx-auto sm:text-center"
                     : currentSlide.textPosition === "right"
-                    ? "ml-auto text-right"
-                    : "text-left"
+                      ? "sm:ml-auto sm:text-right"
+                      : ""
                 }`}
               >
                 {currentSlide.subtitle && (
-                  <span className="inline-block px-3 md:px-4 py-1 md:py-2 bg-primary/20 text-primary text-xs md:text-sm font-medium rounded-full mb-4">
+                  <span className="inline-block px-3 py-1 bg-primary/20 text-primary text-[10px] sm:text-xs md:text-sm font-semibold rounded-full mb-4 uppercase tracking-wider">
                     {currentSlide.subtitle}
                   </span>
                 )}
-                <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-serif font-bold text-white mb-4 md:mb-6">
+                <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-4 leading-tight">
                   {currentSlide.title}
                 </h1>
                 {currentSlide.description && (
-                  <p className="text-base md:text-lg lg:text-xl text-white/90 mb-6 md:mb-8 leading-relaxed">
+                  <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 mb-6 md:mb-8 leading-relaxed line-clamp-3 sm:line-clamp-none">
                     {currentSlide.description}
                   </p>
                 )}

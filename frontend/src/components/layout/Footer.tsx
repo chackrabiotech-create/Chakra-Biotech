@@ -1,83 +1,129 @@
 import Link from "next/link";
-import { Phone, Mail, MapPin, Facebook, Instagram, Twitter } from "lucide-react";
+import {
+  Phone,
+  Mail,
+  MapPin,
+  Facebook,
+  Instagram,
+  Twitter,
+} from "lucide-react";
 
 export function Footer() {
   const whatsappNumber = "919876543210";
   const whatsappUrl = `https://wa.me/${whatsappNumber}`;
 
   return (
-    <footer className="bg-secondary text-secondary-foreground">
+    <footer className="bg-secondary text-secondary-foreground border-t border-secondary-foreground/10">
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-serif font-bold text-xl">S</span>
+          <div className="space-y-6">
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="w-12 h-12 rounded-xl bg-white p-1 shadow-sm group-hover:shadow-md transition-shadow">
+                <img
+                  src="/logo.png"
+                  alt="Chakra Biotech Logo"
+                  className="w-full h-full object-contain"
+                />
               </div>
-              <span className="font-serif text-2xl font-semibold">
-                Saffron<span className="text-primary">Gold</span>
-              </span>
-            </div>
-            <p className="text-secondary-foreground/80 leading-relaxed">
-              Premium Kashmiri saffron sourced directly from the finest farms. 
-              Experience the authentic taste and health benefits of the world's most precious spice.
+              <div className="flex flex-col">
+                <span className="font-serif text-xl font-bold leading-tight">
+                  Chakra<span className="text-primary">Biotech</span>
+                </span>
+                <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-sans font-medium">
+                  Precision Agri-Tech
+                </span>
+              </div>
+            </Link>
+            <p className="text-secondary-foreground/80 leading-relaxed text-sm">
+              An Agri-Tech leader specializing in precision-controlled aeroponic
+              saffron cultivation. We are democratizing "Red Gold" through
+              sustainable technology and innovation.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="hover:text-primary transition-colors">
-                <Facebook className="w-5 h-5" />
+              <a
+                href="#"
+                className="w-9 h-9 rounded-lg bg-secondary-foreground/5 flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all"
+              >
+                <Facebook className="w-4 h-4" />
               </a>
-              <a href="#" className="hover:text-primary transition-colors">
-                <Instagram className="w-5 h-5" />
+              <a
+                href="#"
+                className="w-9 h-9 rounded-lg bg-secondary-foreground/5 flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all"
+              >
+                <Instagram className="w-4 h-4" />
               </a>
-              <a href="#" className="hover:text-primary transition-colors">
-                <Twitter className="w-5 h-5" />
+              <a
+                href="#"
+                className="w-9 h-9 rounded-lg bg-secondary-foreground/5 flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all"
+              >
+                <Twitter className="w-4 h-4" />
               </a>
             </div>
           </div>
 
           {/* Quick Links */}
-          <div className="space-y-4">
-            <h3 className="font-serif text-lg font-semibold">Quick Links</h3>
-            <ul className="space-y-2">
-              {["Products", "Pharmacy", "Training", "Blog", "About"].map((item) => (
-                <li key={item}>
+          <div className="space-y-6">
+            <h3 className="font-serif text-lg font-semibold relative inline-block">
+              Quick Links
+              <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-primary rounded-full"></span>
+            </h3>
+            <ul className="space-y-3">
+              {[
+                { name: "Our Products", href: "/products" },
+                { name: "Training Programs", href: "/training" },
+                { name: "Research & Blog", href: "/blog" },
+                { name: "About Company", href: "/about" },
+                { name: "Terms of Service", href: "/terms" },
+              ].map((link) => (
+                <li key={link.name}>
                   <Link
-                    href={`/${item.toLowerCase()}`}
-                    className="text-secondary-foreground/80 hover:text-primary transition-colors"
+                    href={link.href}
+                    className="text-secondary-foreground/70 hover:text-primary hover:translate-x-1 transition-all inline-block text-sm"
                   >
-                    {item}
+                    {link.name}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Products */}
-          <div className="space-y-4">
-            <h3 className="font-serif text-lg font-semibold">Our Products</h3>
-            <ul className="space-y-2">
-              {["Premium Kashmiri Saffron", "Iranian Saffron", "Spanish Saffron", "Saffron Gift Sets", "Saffron Extract"].map((item) => (
-                <li key={item}>
-                  <Link
-                    href="/products"
-                    className="text-secondary-foreground/80 hover:text-primary transition-colors"
-                  >
-                    {item}
-                  </Link>
+          {/* Offerings */}
+          <div className="space-y-6">
+            <h3 className="font-serif text-lg font-semibold relative inline-block">
+              Offerings
+              <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-primary rounded-full"></span>
+            </h3>
+            <ul className="space-y-3">
+              {[
+                "Aeroponic Saffron",
+                "Indoor Cultivation Training",
+                "CEA Consulting",
+                "Biotech Innovation",
+                "Sustainable Farming",
+              ].map((item) => (
+                <li key={item} className="text-secondary-foreground/70 text-sm">
+                  {item}
                 </li>
               ))}
             </ul>
           </div>
 
           {/* Contact */}
-          <div className="space-y-4">
-            <h3 className="font-serif text-lg font-semibold">Contact Us</h3>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 mt-0.5 text-primary flex-shrink-0" />
-                <span className="text-secondary-foreground/80">
-                  123 Saffron Valley, Kashmir, India - 190001
+          <div className="space-y-6">
+            <h3 className="font-serif text-lg font-semibold relative inline-block">
+              Get in Touch
+              <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-primary rounded-full"></span>
+            </h3>
+            <ul className="space-y-4">
+              <li className="flex items-start gap-3 group">
+                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                  <MapPin className="w-4 h-4" />
+                </div>
+                <span className="text-secondary-foreground/70 text-sm leading-relaxed">
+                  Jaipur, Rajasthan,
+                  <br />
+                  India - 302021
                 </span>
               </li>
               <li>
@@ -85,27 +131,52 @@ export function Footer() {
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 text-secondary-foreground/80 hover:text-primary transition-colors"
+                  className="flex items-center gap-3 group"
                 >
-                  <Phone className="w-5 h-5 text-primary flex-shrink-0" />
-                  +91 98765 43210
+                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <Phone className="w-4 h-4" />
+                  </div>
+                  <span className="text-secondary-foreground/70 text-sm group-hover:text-primary transition-colors">
+                    +91 98765 43210
+                  </span>
                 </a>
               </li>
               <li>
                 <a
-                  href="mailto:info@saffrongold.com"
-                  className="flex items-center gap-3 text-secondary-foreground/80 hover:text-primary transition-colors"
+                  href="mailto:info@chakrabiotech.com"
+                  className="flex items-center gap-3 group"
                 >
-                  <Mail className="w-5 h-5 text-primary flex-shrink-0" />
-                  info@saffrongold.com
+                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <span className="text-secondary-foreground/70 text-sm group-hover:text-primary transition-colors">
+                    info@chakrabiotech.com
+                  </span>
                 </a>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-secondary-foreground/20 mt-12 pt-8 text-center text-secondary-foreground/60">
-          <p>&copy; {new Date().getFullYear()} SaffronGold. All rights reserved.</p>
+        <div className="border-t border-secondary-foreground/10 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-secondary-foreground/60 text-xs">
+          <p>
+            &copy; {new Date().getFullYear()} Chakra Biotech LLP. All rights
+            reserved.
+          </p>
+          <div className="flex gap-6">
+            <Link
+              href="/privacy"
+              className="hover:text-primary transition-colors"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              href="/compliance"
+              className="hover:text-primary transition-colors"
+            >
+              Compliance
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

@@ -17,14 +17,14 @@ export function Layout({ children }: LayoutProps) {
     <div className="min-h-screen flex flex-col relative">
       {/* Animated background elements */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <FloatingElement 
+        <FloatingElement
           className="absolute top-20 left-10 w-4 h-4 bg-primary/10 rounded-full"
           duration={4}
           yOffset={15}
         >
           <div />
         </FloatingElement>
-        <FloatingElement 
+        <FloatingElement
           className="absolute top-40 right-20 w-6 h-6 bg-accent/10 rounded-full"
           duration={5}
           yOffset={20}
@@ -32,7 +32,7 @@ export function Layout({ children }: LayoutProps) {
         >
           <div />
         </FloatingElement>
-        <FloatingElement 
+        <FloatingElement
           className="absolute bottom-40 left-20 w-3 h-3 bg-secondary/20 rounded-full"
           duration={6}
           yOffset={12}
@@ -40,7 +40,7 @@ export function Layout({ children }: LayoutProps) {
         >
           <div />
         </FloatingElement>
-        <FloatingElement 
+        <FloatingElement
           className="absolute bottom-60 right-10 w-5 h-5 bg-primary/5 rounded-full"
           duration={4.5}
           yOffset={18}
@@ -63,8 +63,8 @@ export function Layout({ children }: LayoutProps) {
       </div>
 
       {/* Main Content */}
-      <motion.main 
-        className="flex-1 pt-28 relative z-40"
+      <motion.main
+        className="flex-1 pt-[120px] lg:pt-[140px] relative z-40"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.5 }}
