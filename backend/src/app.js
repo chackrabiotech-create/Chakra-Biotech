@@ -10,18 +10,21 @@ const app = express();
 // Security middleware
 app.use(helmet());
 
-// CORS configuration
+// CORS configuration - Allow all origins
 const corsOptions = {
-  origin: [process.env.FRONTEND_URL, process.env.ADMIN_FRONTEND_URL],
+  origin: true, // Allow all origins
   credentials: true,
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
 
-// Rate limiting
+// Rate limiting - Configured for 100k users
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  max: 10000, // limit each IP to 10,000 requests per windowMs (suitable for 100k users)
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
 app.use('/api/', limiter);
 
@@ -62,6 +65,11 @@ app.use('/api/gallery', require('./routes/public/galleryRoutes'));
 app.use('/api/company-details', require('./routes/public/companyRoutes'));
 app.use('/api/hero-sections', require('./routes/public/heroRoutes'));
 app.use('/api/contact', require('./routes/public/contactRoutes'));
+
+// Root route
+app.get('/', (req, res) => {
+  res.json({ message: 'API working fine', status: 'OK' });
+});
 
 // Health check
 app.get('/health', (req, res) => {
