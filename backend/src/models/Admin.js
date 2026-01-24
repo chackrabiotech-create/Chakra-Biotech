@@ -42,13 +42,19 @@ const adminSchema = new mongoose.Schema({
 
 // Hash password before saving
 adminSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) return next();
+    if (!this.isModified('password')) {
+        console.log('Password not modified, skipping hash for:', this.email);
+        return next();
+    }
 
     try {
+        console.log('Hashing password for:', this.email, 'Original length:', this.password.length);
         const salt = await bcrypt.genSalt(10);
         this.password = await bcrypt.hash(this.password, salt);
+        console.log('Password hashed successfully. New hash length:', this.password.length);
         next();
     } catch (error) {
+        console.error('Password hashing error:', error);
         next(error);
     }
 });

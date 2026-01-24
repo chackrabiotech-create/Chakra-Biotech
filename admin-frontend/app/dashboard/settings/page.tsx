@@ -24,23 +24,25 @@ import {
   X,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { adminApi } from "../../../lib/api/admin";
 
 const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState("profile");
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 
-  // Profile Settings
+  // Profile Settings - will be loaded from database
   const [profileData, setProfileData] = useState({
-    firstName: "Admin",
-    lastName: "User",
-    email: "admin@saffronshop.com",
-    phone: "+91 98765 43210",
-    role: "Super Admin",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    role: "",
     avatar: "",
-    bio: "Managing the saffron business operations and ensuring quality products reach our customers.",
-    location: "Kashmir, India",
+    bio: "",
+    location: "",
     timezone: "Asia/Kolkata",
     language: "English",
   });
@@ -116,6 +118,43 @@ const SettingsPage = () => {
 
   const [isLoadingFooter, setIsLoadingFooter] = useState(false);
 
+  // Fetch admin profile data on mount
+  useEffect(() => {
+    const fetchAdminProfile = async () => {
+      setIsLoadingProfile(true);
+      try {
+        const response = await adminApi.getProfile();
+        if (response.success && response.data) {
+          const admin = response.data;
+          // Split name into first and last name
+          const nameParts = admin.name.split(" ");
+          const firstName = nameParts[0] || "";
+          const lastName = nameParts.slice(1).join(" ") || "";
+
+          setProfileData({
+            firstName,
+            lastName,
+            email: admin.email,
+            phone: "",
+            role: admin.role,
+            avatar: "",
+            bio: "",
+            location: "",
+            timezone: "Asia/Kolkata",
+            language: "English",
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch admin profile:", error);
+        toast.error("Failed to load profile data");
+      } finally {
+        setIsLoadingProfile(false);
+      }
+    };
+
+    fetchAdminProfile();
+  }, []);
+
   // Fetch company/footer data on mount
   useEffect(() => {
     const fetchCompanyData = async () => {
@@ -162,28 +201,33 @@ const SettingsPage = () => {
 
   const handleSaveProfile = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/admin/manage/profile",
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("chakra_admin_token")}`,
-          },
-          body: JSON.stringify({
-            email: profileData.email,
-            name:
-              profileData.firstName +
-              (profileData.lastName ? ` ${profileData.lastName}` : ""),
-          }),
-        },
-      );
+      const fullName =
+        profileData.firstName +
+        (profileData.lastName ? ` ${profileData.lastName}` : "");
 
-      const data = await response.json();
-      if (data.success) {
+      const response = await adminApi.updateProfile({
+        email: profileData.email,
+        name: fullName,
+      });
+
+      if (response.success) {
         toast.success("Profile updated successfully!");
+        // Update local state with the response data
+        if (response.data) {
+          const nameParts = response.data.name.split(" ");
+          const firstName = nameParts[0] || "";
+          const lastName = nameParts.slice(1).join(" ") || "";
+
+          setProfileData((prev) => ({
+            ...prev,
+            firstName,
+            lastName,
+            email: response.data.email,
+            role: response.data.role,
+          }));
+        }
       } else {
-        toast.error(data.message || "Failed to update profile");
+        toast.error(response.message || "Failed to update profile");
       }
     } catch (error) {
       console.error("Failed to update profile:", error);
@@ -251,29 +295,14 @@ const SettingsPage = () => {
       toast.error("New passwords do not match!");
       return;
     }
-    if (passwordData.newPassword.length < 6) {
-      toast.error("Password must be at least 6 characters long!");
-      return;
-    }
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/admin/manage/change-password",
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("chakra_admin_token")}`,
-          },
-          body: JSON.stringify({
-            currentPassword: passwordData.currentPassword,
-            newPassword: passwordData.newPassword,
-          }),
-        },
-      );
+      const response = await adminApi.changePassword({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword,
+      });
 
-      const data = await response.json();
-      if (data.success) {
+      if (response.success) {
         toast.success("Password changed successfully!");
         setShowPasswordModal(false);
         setPasswordData({
@@ -282,7 +311,7 @@ const SettingsPage = () => {
           confirmPassword: "",
         });
       } else {
-        toast.error(data.message || "Failed to change password");
+        toast.error(response.message || "Failed to change password");
       }
     } catch (error) {
       console.error("Failed to change password:", error);
@@ -353,143 +382,160 @@ const SettingsPage = () => {
           Profile Information
         </h3>
 
-        {/* Avatar Section */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
-          <div className="relative">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-saffron-500 to-maroon-600 rounded-full flex items-center justify-center">
-              {profileData.avatar ? (
-                <img
-                  src={profileData.avatar}
-                  alt="Avatar"
-                  className="w-full h-full rounded-full object-cover"
-                />
-              ) : (
-                <User className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
-              )}
+        {isLoadingProfile ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-saffron-600 mx-auto mb-4"></div>
+              <p className="text-admin-500">Loading profile...</p>
             </div>
-            <button className="absolute -bottom-1 -right-1 p-2 bg-saffron-500 text-white rounded-full hover:bg-saffron-600 transition-colors">
-              <Upload className="w-3 h-3" />
-            </button>
           </div>
-          <div className="flex-1">
-            <h4 className="text-responsive-lg font-semibold text-admin-800">
-              {profileData.firstName} {profileData.lastName}
-            </h4>
-            <p className="text-responsive-sm text-admin-600">
-              {profileData.role}
-            </p>
-            <p className="text-responsive-xs text-admin-500">
-              {profileData.email}
-            </p>
-          </div>
-        </div>
+        ) : (
+          <>
+            {/* Avatar Section */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
+              <div className="relative">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-saffron-500 to-maroon-600 rounded-full flex items-center justify-center">
+                  {profileData.avatar ? (
+                    <img
+                      src={profileData.avatar}
+                      alt="Avatar"
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+                  )}
+                </div>
+                <button className="absolute -bottom-1 -right-1 p-2 bg-saffron-500 text-white rounded-full hover:bg-saffron-600 transition-colors">
+                  <Upload className="w-3 h-3" />
+                </button>
+              </div>
+              <div className="flex-1">
+                <h4 className="text-responsive-lg font-semibold text-admin-800">
+                  {profileData.firstName} {profileData.lastName}
+                </h4>
+                <p className="text-responsive-sm text-admin-600">
+                  {profileData.role}
+                </p>
+                <p className="text-responsive-xs text-admin-500">
+                  {profileData.email}
+                </p>
+              </div>
+            </div>
 
-        <div className="form-grid gap-responsive">
-          <div>
-            <label className="block text-sm font-medium text-admin-700 mb-2">
-              First Name
-            </label>
-            <input
-              type="text"
-              value={profileData.firstName}
-              onChange={(e) =>
-                setProfileData({ ...profileData, firstName: e.target.value })
-              }
-              className="input-field"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-admin-700 mb-2">
-              Last Name
-            </label>
-            <input
-              type="text"
-              value={profileData.lastName}
-              onChange={(e) =>
-                setProfileData({ ...profileData, lastName: e.target.value })
-              }
-              className="input-field"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-admin-700 mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              value={profileData.email}
-              onChange={(e) =>
-                setProfileData({ ...profileData, email: e.target.value })
-              }
-              className="input-field"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-admin-700 mb-2">
-              Phone
-            </label>
-            <input
-              type="tel"
-              value={profileData.phone}
-              onChange={(e) =>
-                setProfileData({ ...profileData, phone: e.target.value })
-              }
-              className="input-field"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-admin-700 mb-2">
-              Location
-            </label>
-            <input
-              type="text"
-              value={profileData.location}
-              onChange={(e) =>
-                setProfileData({ ...profileData, location: e.target.value })
-              }
-              className="input-field"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-admin-700 mb-2">
-              Timezone
-            </label>
-            <select
-              value={profileData.timezone}
-              onChange={(e) =>
-                setProfileData({ ...profileData, timezone: e.target.value })
-              }
-              className="select-field"
-            >
-              <option value="Asia/Kolkata">Asia/Kolkata</option>
-              <option value="UTC">UTC</option>
-              <option value="America/New_York">America/New_York</option>
-              <option value="Europe/London">Europe/London</option>
-            </select>
-          </div>
-        </div>
+            <div className="form-grid gap-responsive">
+              <div>
+                <label className="block text-sm font-medium text-admin-700 mb-2">
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  value={profileData.firstName}
+                  onChange={(e) =>
+                    setProfileData({
+                      ...profileData,
+                      firstName: e.target.value,
+                    })
+                  }
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-admin-700 mb-2">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  value={profileData.lastName}
+                  onChange={(e) =>
+                    setProfileData({ ...profileData, lastName: e.target.value })
+                  }
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-admin-700 mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={profileData.email}
+                  onChange={(e) =>
+                    setProfileData({ ...profileData, email: e.target.value })
+                  }
+                  className="input-field"
+                />
+                <p className="text-xs text-admin-500 mt-1">
+                  You can change your login email here
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-admin-700 mb-2">
+                  Phone
+                </label>
+                <input
+                  type="tel"
+                  value={profileData.phone}
+                  onChange={(e) =>
+                    setProfileData({ ...profileData, phone: e.target.value })
+                  }
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-admin-700 mb-2">
+                  Location
+                </label>
+                <input
+                  type="text"
+                  value={profileData.location}
+                  onChange={(e) =>
+                    setProfileData({ ...profileData, location: e.target.value })
+                  }
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-admin-700 mb-2">
+                  Timezone
+                </label>
+                <select
+                  value={profileData.timezone}
+                  onChange={(e) =>
+                    setProfileData({ ...profileData, timezone: e.target.value })
+                  }
+                  className="select-field"
+                >
+                  <option value="Asia/Kolkata">Asia/Kolkata</option>
+                  <option value="UTC">UTC</option>
+                  <option value="America/New_York">America/New_York</option>
+                  <option value="Europe/London">Europe/London</option>
+                </select>
+              </div>
+            </div>
 
-        <div className="mt-4">
-          <label className="block text-sm font-medium text-admin-700 mb-2">
-            Bio
-          </label>
-          <textarea
-            rows={3}
-            value={profileData.bio}
-            onChange={(e) =>
-              setProfileData({ ...profileData, bio: e.target.value })
-            }
-            className="textarea-field"
-            placeholder="Tell us about yourself..."
-          />
-        </div>
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-admin-700 mb-2">
+                Bio
+              </label>
+              <textarea
+                rows={3}
+                value={profileData.bio}
+                onChange={(e) =>
+                  setProfileData({ ...profileData, bio: e.target.value })
+                }
+                className="textarea-field"
+                placeholder="Tell us about yourself..."
+              />
+            </div>
 
-        <div className="flex justify-end mt-6">
-          <button onClick={handleSaveProfile} className="btn-primary">
-            <Save className="icon-responsive-sm mr-2" />
-            Save Changes
-          </button>
-        </div>
+            <div className="flex justify-end mt-6">
+              <button onClick={handleSaveProfile} className="btn-primary">
+                <Save className="icon-responsive-sm mr-2" />
+                Save Changes
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

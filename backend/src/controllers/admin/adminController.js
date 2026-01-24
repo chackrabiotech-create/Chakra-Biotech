@@ -74,17 +74,12 @@ exports.changePassword = async (req, res) => {
         const { currentPassword, newPassword } = req.body;
         const adminId = req.admin.id;
 
+        console.log('Change password attempt for admin:', adminId);
+
         if (!currentPassword || !newPassword) {
             return res.status(400).json({
                 success: false,
                 message: 'Please provide both current and new password'
-            });
-        }
-
-        if (newPassword.length < 6) {
-            return res.status(400).json({
-                success: false,
-                message: 'New password must be at least 6 characters long'
             });
         }
 
@@ -94,22 +89,37 @@ exports.changePassword = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Admin not found' });
         }
 
+        console.log('Admin found for password change:', {
+            email: admin.email,
+            hasPassword: !!admin.password,
+            passwordLength: admin.password ? admin.password.length : 0,
+            currentPasswordLength: currentPassword.length,
+            newPasswordLength: newPassword.length
+        });
+
         // Verify current password
         const isPasswordValid = await admin.comparePassword(currentPassword);
+
+        console.log('Current password verification:', isPasswordValid);
 
         if (!isPasswordValid) {
             return res.status(401).json({ success: false, message: 'Current password is incorrect' });
         }
 
+        console.log('Setting new password...');
+
         // Update to new password (will be hashed by pre-save hook)
         admin.password = newPassword;
         await admin.save();
+
+        console.log('Password changed successfully for:', admin.email);
 
         res.json({
             success: true,
             message: 'Password changed successfully'
         });
     } catch (error) {
+        console.error('Change password error:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -123,10 +133,10 @@ exports.resetPassword = async (req, res) => {
             return res.status(403).json({ success: false, message: 'Unauthorized' });
         }
 
-        if (!newPassword || newPassword.length < 6) {
+        if (!newPassword) {
             return res.status(400).json({
                 success: false,
-                message: 'New password must be at least 6 characters long'
+                message: 'New password is required'
             });
         }
 

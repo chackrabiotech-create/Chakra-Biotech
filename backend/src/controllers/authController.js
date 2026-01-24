@@ -25,17 +25,25 @@ exports.login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Account is disabled' });
     }
 
+    console.log('Admin found:', {
+      email: admin.email,
+      hasPassword: !!admin.password,
+      passwordLength: admin.password ? admin.password.length : 0,
+      passwordStartsWith: admin.password ? admin.password.substring(0, 7) : 'N/A'
+    });
+
     // Compare password
     const isPasswordValid = await admin.comparePassword(password);
+
+    console.log('Password comparison result:', isPasswordValid);
 
     if (!isPasswordValid) {
       console.log('Login failed: Invalid password');
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    // Update last login
-    admin.lastLogin = new Date();
-    await admin.save();
+    // Update last login - DON'T trigger save hook for password
+    await Admin.findByIdAndUpdate(admin._id, { lastLogin: new Date() });
 
     // Generate JWT token
     const token = jwt.sign(

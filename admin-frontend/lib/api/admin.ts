@@ -1,4 +1,4 @@
-import api from './config';
+import { apiRequest } from './config';
 
 export interface AdminProfile {
     id: string;
@@ -23,19 +23,27 @@ export interface UpdateProfileData {
 export const adminApi = {
     // Get current admin profile
     getProfile: async () => {
-        const response = await api.get<{ success: boolean; data: AdminProfile }>('/admin/manage/profile');
-        return response.data;
+        const data = await apiRequest('/admin/manage/profile', {
+            method: 'GET',
+        });
+        return data;
     },
 
     // Update admin profile (email/name)
-    updateProfile: async (data: UpdateProfileData) => {
-        const response = await api.put<{ success: boolean; data: AdminProfile; message: string }>('/admin/manage/profile', data);
-        return response.data;
+    updateProfile: async (updateData: UpdateProfileData) => {
+        const data = await apiRequest('/admin/manage/profile', {
+            method: 'PUT',
+            body: JSON.stringify(updateData),
+        });
+        return data;
     },
 
     // Change password
-    changePassword: async (data: ChangePasswordData) => {
-        const response = await api.put<{ success: boolean; message: string }>('/admin/manage/change-password', data);
-        return response.data;
+    changePassword: async (passwordData: ChangePasswordData) => {
+        const data = await apiRequest('/admin/manage/change-password', {
+            method: 'PUT',
+            body: JSON.stringify(passwordData),
+        });
+        return data;
     },
 };

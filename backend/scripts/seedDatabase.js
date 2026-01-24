@@ -5,6 +5,12 @@
  * 1. Initial admin account from .env or defaults
  * 2. Company details with footer settings
  * 
+ * IMPORTANT: 
+ * - .env ADMIN_EMAIL and ADMIN_PASSWORD are ONLY used for initial seeding
+ * - After seeding, login uses database-saved credentials
+ * - Admin can change email/password through the admin panel Settings
+ * - Changing .env values after seeding has NO effect on authentication
+ * 
  * Usage: node scripts/seedDatabase.js
  */
 
@@ -14,7 +20,7 @@ require('dotenv').config();
 const Admin = require('../src/models/Admin');
 const CompanyDetails = require('../src/models/CompanyDetails');
 
-// Default admin credentials (will use .env if available)
+// Default admin credentials (ONLY used for initial seeding, NOT for login)
 const defaultAdmin = {
     email: process.env.ADMIN_EMAIL || 'admin@chakrabiotech.com',
     password: process.env.ADMIN_PASSWORD || 'admin123456',
@@ -165,8 +171,14 @@ async function seedDatabase() {
         console.log('   2. Login to admin panel with:');
         console.log(`      Email: ${defaultAdmin.email}`);
         console.log(`      Password: ${defaultAdmin.password}`);
-        console.log('   3. Change admin password in Settings');
-        console.log('   4. Update company details as needed');
+        console.log('   3. Change admin password in Settings → Security');
+        console.log('   4. Change admin email in Settings → Profile');
+        console.log('   5. Update company details as needed');
+        console.log('\n⚠️  IMPORTANT:');
+        console.log('   - Login uses DATABASE credentials, NOT .env values');
+        console.log('   - After changing email/password in admin panel,');
+        console.log('     use the NEW credentials to login');
+        console.log('   - .env values are ONLY for initial seeding');
         console.log('\n' + '='.repeat(50) + '\n');
 
     } catch (error) {
